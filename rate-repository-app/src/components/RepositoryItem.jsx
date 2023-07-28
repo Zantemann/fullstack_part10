@@ -1,7 +1,6 @@
-import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import theme from '../theme';
-import Text from './Text'
+import Text from './Text';
 
 const styles = StyleSheet.create({
   container: {
@@ -89,7 +88,7 @@ const RepositoryItem = ({ item }) => {
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <Image source={{ uri: ownerAvatarUrl }} style={styles.avatar} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.fullName}>{fullName}</Text>
+          <Text fontWeight="bold" style={styles.fullName}>{fullName}</Text>
           <Text style={styles.description}>{description}</Text>
           <Text style={styles.language}>{language}</Text>
         </View>

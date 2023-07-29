@@ -5,6 +5,9 @@ import { Formik } from 'formik';
 import Text from './Text';
 import * as yup from 'yup';
 import theme from '../theme'
+import useSignIn from '../hooks/useSignIn';
+import { useNavigate } from "react-router-native";
+import { useState } from 'react';
 
 const styles = StyleSheet.create({
   container: {
@@ -26,6 +29,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  error: {
+    color: theme.colors.error,
+  }
 });
 
 const validationSchema = yup.object().shape({
@@ -34,8 +40,26 @@ const validationSchema = yup.object().shape({
 });
 
 const SignIn = () => {
-  const onSubmit = (values) => {
-    console.log(values);
+  const [signIn] = useSignIn();
+  const navigate = useNavigate()
+  const [error, setError] = useState(false);
+
+  const onSubmit = async (values) => {
+    const { username, password } = values;
+    try {
+      const data = await signIn({ username, password });
+
+      if(data.authenticate) {
+        navigate('/');
+      } else {
+        setError(true);
+        setTimeout(() => {
+          setError('');
+        }, 5000);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -54,6 +78,8 @@ const SignIn = () => {
           secureTextEntry
           style={styles.input}
         />
+        {error && 
+        <Text style={styles.error}>Invalid username or password</Text>}
          <Pressable style={styles.button} onPress={handleSubmit}>
             <Text style={styles.text}>Log in</Text>
           </Pressable>

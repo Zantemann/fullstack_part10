@@ -5,7 +5,7 @@ import Text from './Text';
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
   },
   fullName: {
     fontSize: theme.fontSizes.subheading,
@@ -47,6 +47,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+
 
 const CountDisplay = ({ count, label }) => {
   if (count >= 1000) {

@@ -51,6 +51,11 @@ const AppBar = () => {
       <Link style={styles.link} to="/">
         <Text style={styles.tab}>Repositories</Text>
       </Link>
+      {user && user.username && (
+        <Link style={styles.link} to="/review">
+          <Text style={styles.tab}>Create a review</Text>
+        </Link>
+      )}
       {user && user.username ? (
         <Link style={styles.link} to="/" onPress={handleSignOut}>
           <Text style={styles.tab}>Sign Out</Text>

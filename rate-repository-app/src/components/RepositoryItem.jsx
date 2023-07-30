@@ -84,7 +84,7 @@ const RepositoryItem = ({ item }) => {
   } = item;
 
   return (
-    <View style={styles.container}>
+    <View testID="repositoryItem" style={styles.container}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <Image source={{ uri: ownerAvatarUrl }} style={styles.avatar} />
         <View style={{ flex: 1 }}>

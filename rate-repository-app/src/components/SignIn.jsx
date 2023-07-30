@@ -7,7 +7,6 @@ import * as yup from 'yup';
 import theme from '../theme'
 import useSignIn from '../hooks/useSignIn';
 import { useNavigate } from "react-router-native";
-import { useState } from 'react';
 
 const styles = StyleSheet.create({
   container: {
@@ -39,55 +38,51 @@ const validationSchema = yup.object().shape({
   password: yup.string().required('Password is required'),
 });
 
+export const SignInForm = ({ onSubmit }) => {
+  return (
+    <View style={styles.container}>
+      <Formik initialValues={{ username: '', password: '' }} onSubmit={onSubmit} validationSchema={validationSchema}>
+        {({ handleSubmit }) => (
+          <View>
+            <FormikTextInput 
+              name="username"
+              placeholder="Username"
+              autoCapitalize="none"
+              style={styles.input}
+            />
+            <FormikTextInput name="password"
+              placeholder="Password"
+              secureTextEntry
+              style={styles.input}
+            />
+            <Pressable style={styles.button} onPress={handleSubmit}>
+                <Text style={styles.text}>Log in</Text>
+            </Pressable>
+          </View>
+        )}
+      </Formik>
+    </View>
+  );
+};
+
 const SignIn = () => {
   const [signIn] = useSignIn();
   const navigate = useNavigate()
-  const [error, setError] = useState(false);
 
-  const onSubmit = async (values) => {
+  const handleSubmit = async (values) => {
     const { username, password } = values;
     try {
       const data = await signIn({ username, password });
-
-      if(data.authenticate) {
+  
+      if (data.authenticate) {
         navigate('/');
-      } else {
-        setError(true);
-        setTimeout(() => {
-          setError('');
-        }, 5000);
       }
     } catch (e) {
       console.log(e);
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Formik initialValues={{ username: '', password: '' }} onSubmit={onSubmit} validationSchema={validationSchema}>
-      {({ handleSubmit }) => (
-        <>
-        <FormikTextInput 
-          name="username"
-          placeholder="Username"
-          autoCapitalize="none"
-          style={styles.input}
-        />
-        <FormikTextInput name="password"
-          placeholder="Password"
-          secureTextEntry
-          style={styles.input}
-        />
-        {error && 
-        <Text style={styles.error}>Invalid username or password</Text>}
-         <Pressable style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.text}>Log in</Text>
-          </Pressable>
-        </>
-        )}
-      </Formik>
-    </View>
-  );
-};
+  return <SignInForm onSubmit={handleSubmit}/>
+}
 
 export default SignIn;

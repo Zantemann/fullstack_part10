@@ -1,25 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import FormikTextInput from './FormikTextInput';
-import { useMutation } from '@apollo/client';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import Text from './Text'
-import { GET_REPOSITORY } from '../graphql/queries'
-import { CREATE_REVIEW } from '../graphql/mutations'
 import theme from '../theme'
+import { useNavigate } from "react-router-native";
+import useReview from '../hooks/useReview';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    backgroundColor: '#ffffff',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
+    paddingHorizontal: 10,
+    padding: 15,
+    backgroundColor: '#ffffff'
   },
   errorText: {
     color: 'red',
@@ -38,17 +31,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  error: {
+    color: theme.colors.error,
+    paddingTop: 10
+  },
 });
 
 const validationSchema = yup.object().shape({
-  ownerName: yup.string().required('Repository owner\'s username is required'),
-  repositoryName: yup.string().required('Repository\'s name is required'),
+  ownerName: yup.string().required('Repository owner name is required'),
+  repositoryName: yup.string().required('Repository name is required'),
   rating: yup.number().required('Rating is required').min(0).max(100),
   text: yup.string(),
 });
 
-const ReviewForm = ({ repositoryId, onSubmit }) => {
-  const [createReview] = useMutation(CREATE_REVIEW);
+const ReviewForm = () => {
+  const navigate = useNavigate();
+  const [review] = useReview();
+  const [error, setError] = useState('');
 
   const initialValues = {
     ownerName: '',
@@ -57,26 +56,26 @@ const ReviewForm = ({ repositoryId, onSubmit }) => {
     text: '',
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
-    setSubmitting(true);
+  const handleSubmit = async (values) => {
+    const { repositoryName, ownerName, rating, text } = values;
 
     try {
-      await createReview({
-        variables: {
-          repositoryName: values.repositoryName,
-          ownerName: values.ownerName,
-          rating: parseInt(values.rating),
-          text: values.text || null,
-        },
-        refetchQueries: [{ query: GET_REPOSITORY, variables: { repositoryId }, fetchPolicy: 'cache-and-network' }],
-      });
+      const data = await review({ repositoryName, ownerName, rating: parseInt(rating), text });
 
-      onSubmit();
+      if (data?.createReview?.repositoryId){
+        navigate(`/${data.createReview.repositoryId}`)
+      } else if (data?.message) {
+        setError(data.message);
+      } else {
+        setError('Unknown error occurred.');
+      }
+      setTimeout(() => {
+        setError('');
+      }, 5000);
+
     } catch (error) {
       console.log('Error creating review:', error);
     }
-
-    setSubmitting(false);
   };
 
   return (
@@ -85,7 +84,7 @@ const ReviewForm = ({ repositoryId, onSubmit }) => {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ handleChange, handleBlur, handleSubmit, values }) => (
+      {({ handleSubmit }) => (
         <View style={styles.container}>
           <FormikTextInput
             name="ownerName"
@@ -111,14 +110,14 @@ const ReviewForm = ({ repositoryId, onSubmit }) => {
             placeholder="Review"
             multiline
             style={styles.input}
-            value={values.text}
-            onChangeText={handleChange('text')}
-            onBlur={handleBlur('text')}
           />
 
           <Pressable style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.text}>Log in</Text>
+            <Text style={styles.text}>Create a review</Text>
           </Pressable>
+          {error &&
+            <Text style={styles.error}>{error}</Text>
+          }
         </View>
       )}
     </Formik>

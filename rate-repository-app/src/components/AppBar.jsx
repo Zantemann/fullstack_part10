@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import theme from '../theme';
 import { Link } from 'react-router-native';
 import { useQuery } from '@apollo/client';
-import { ME } from '../graphql/queries';
+import { CURRENT_USER } from '../graphql/queries';
 import useAuthStorage from '../hooks/useAuthStorage';
 import { useApolloClient } from '@apollo/client';
 
@@ -32,7 +32,7 @@ const AppBar = () => {
   const apolloClient = useApolloClient();
   const authStorage = useAuthStorage();
 
-  const { data, loading } = useQuery(ME);
+  const { data, loading } = useQuery(CURRENT_USER);
 
   if (loading) {
     return null;
@@ -54,6 +54,11 @@ const AppBar = () => {
       {user && user.username && (
         <Link style={styles.link} to="/review">
           <Text style={styles.tab}>Create a review</Text>
+        </Link>
+      )}
+      {user && user.username && (
+        <Link style={styles.link} to="/myReviews">
+          <Text style={styles.tab}>My Reviews</Text>
         </Link>
       )}
       {user && user.username ? (

@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
 
 const SingleRepository = () => {
   const { id } = useParams()
-  const { data, loading, error } = useQuery(GET_REPOSITORY, { variables: { repositoryId:  id } })
+  const { data, loading, error } = useQuery(GET_REPOSITORY, { variables: { repositoryId:  id }, fetchPolicy: 'cache-and-network' }, )
 
   if (loading) {
     return <View><Text>Loading...</Text></View>;

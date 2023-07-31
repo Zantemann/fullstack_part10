@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import FormikTextInput from './FormikTextInput';
 import { Formik } from 'formik';
@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   },
   error: {
     color: theme.colors.error,
+    paddingTop: 10
   }
 });
 
@@ -38,7 +39,7 @@ const validationSchema = yup.object().shape({
   password: yup.string().required('Password is required'),
 });
 
-export const SignInForm = ({ onSubmit }) => {
+export const SignInForm = ({ onSubmit, error }) => {
   return (
     <View style={styles.container}>
       <Formik initialValues={{ username: '', password: '' }} onSubmit={onSubmit} validationSchema={validationSchema}>
@@ -58,6 +59,9 @@ export const SignInForm = ({ onSubmit }) => {
             <Pressable style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.text}>Log in</Text>
             </Pressable>
+            {error &&
+              <Text style={styles.error}>{error}</Text>
+            }
           </View>
         )}
       </Formik>
@@ -68,6 +72,7 @@ export const SignInForm = ({ onSubmit }) => {
 const SignIn = () => {
   const [signIn] = useSignIn();
   const navigate = useNavigate()
+  const [error, setError] = useState('');
 
   const handleSubmit = async (values) => {
     const { username, password } = values;
@@ -76,13 +81,20 @@ const SignIn = () => {
   
       if (data.authenticate) {
         navigate('/');
+      } else if (data?.message) {
+        setError(data.message);
+      } else {
+        setError('Unknown error occurred.');
       }
+      setTimeout(() => {
+        setError('');
+      }, 5000);
     } catch (e) {
       console.log(e);
     }
   };
 
-  return <SignInForm onSubmit={handleSubmit}/>
+  return <SignInForm onSubmit={handleSubmit} error={error}/>
 }
 
 export default SignIn;
